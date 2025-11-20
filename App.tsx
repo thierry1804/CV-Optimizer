@@ -5,6 +5,7 @@ import { extractCVData, analyzeCV, rewriteCV } from './services/geminiService';
 import { UploadStep } from './components/UploadStep';
 import { AnalysisDashboard } from './components/AnalysisDashboard';
 import { ImprovedCV } from './components/ImprovedCV';
+import { JobOffersList } from './components/JobOffersList';
 import { FileText, Sparkles } from 'lucide-react';
 
 const App: React.FC = () => {
@@ -31,6 +32,14 @@ const App: React.FC = () => {
       const extractedData = await extractCVData(text);
       setCvData(extractedData);
 
+      // Mode simple : juste les offres (sans description de poste)
+      if (!jobDescription || jobDescription.trim().length < 10) {
+        setStep(AppStep.JOB_OFFERS_ONLY);
+        setIsLoading(false);
+        return;
+      }
+
+      // Mode complet : analyse complète avec description de poste
       // 3. AI Analysis
       const analysisResult = await analyzeCV(extractedData, jobDescription);
       setAnalysis(analysisResult);
@@ -53,6 +62,7 @@ const App: React.FC = () => {
   const resetApp = () => {
     setStep(AppStep.UPLOAD);
     setCvData(null);
+    setJobDesc('');
     setAnalysis(null);
     setRewrittenResult(null);
     setError(null);
@@ -90,9 +100,34 @@ const App: React.FC = () => {
           <UploadStep onAnalyze={handleAnalyze} isLoading={isLoading} />
         )}
 
-        {step === AppStep.RESULTS && analysis && (
+        {/* Mode simple : juste les offres d'emploi */}
+        {step === AppStep.JOB_OFFERS_ONLY && cvData && (
+          <div className="max-w-5xl mx-auto space-y-8 animate-fade-in pb-12">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8 text-center">
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">Votre CV a été analysé</h2>
+              <p className="text-slate-600">
+                Voici les offres d'emploi qui correspondent à votre profil sur portaljob-madagascar.com
+              </p>
+            </div>
+            <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+              <JobOffersList cvData={cvData} />
+            </div>
+            <div className="text-center">
+              <button 
+                onClick={resetApp}
+                className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Analyser une autre offre
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Mode complet : analyse détaillée avec description de poste */}
+        {step === AppStep.RESULTS && analysis && cvData && (
           <AnalysisDashboard 
-            analysis={analysis} 
+            analysis={analysis}
+            cvData={cvData}
             onNext={() => setStep(AppStep.ANALYZING)} // Using ANALYZING enum temporarily as 'SHOW_CV' state concept
           />
         )}

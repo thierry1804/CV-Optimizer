@@ -39,9 +39,28 @@ export interface RewrittenCV {
   rawJson: CVData; // Structured data if needed for form fields
 }
 
+// Job offer structure
+export interface JobOffer {
+  title: string;
+  company: string;
+  contractType: string;
+  sector: string;
+  date: string;
+  reference?: string;
+  url?: string;
+  description?: string;
+}
+
+// Matched job offer with score
+export interface MatchedJobOffer extends JobOffer {
+  matchingScore: number; // 0-100
+  matchReasons: string[];
+}
+
 export enum AppStep {
   UPLOAD = 'UPLOAD',
   ANALYZING = 'ANALYZING',
   RESULTS = 'RESULTS',
+  JOB_OFFERS_ONLY = 'JOB_OFFERS_ONLY', // Mode simple : juste les offres sans analyse complète
   ERROR = 'ERROR'
 }

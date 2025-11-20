@@ -1,13 +1,15 @@
 import React from 'react';
-import { CVAnalysis } from '../types';
+import { CVAnalysis, CVData } from '../types';
 import { CheckCircle2, XCircle, Lightbulb, Star } from 'lucide-react';
+import { JobOffersList } from './JobOffersList';
 
 interface AnalysisDashboardProps {
   analysis: CVAnalysis;
+  cvData: CVData;
   onNext: () => void;
 }
 
-export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({ analysis, onNext }) => {
+export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({ analysis, cvData, onNext }) => {
   // Color for score
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-green-600 border-green-600';
@@ -93,6 +95,11 @@ export const AnalysisDashboard: React.FC<AnalysisDashboardProps> = ({ analysis, 
               </div>
             ))}
          </div>
+      </div>
+
+      {/* Job Offers Section */}
+      <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 md:p-8">
+        <JobOffersList cvData={cvData} />
       </div>
 
       <div className="md:hidden text-center">
