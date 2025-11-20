@@ -1,8 +1,19 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { CVData, CVAnalysis, RewrittenCV } from "../types";
 
-// Initialize Gemini Client
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Initialize Gemini Client lazily
+let ai: GoogleGenAI | null = null;
+
+const getAI = (): GoogleGenAI => {
+  if (!ai) {
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY || import.meta.env.GEMINI_API_KEY || process.env.API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY n'est pas définie. Veuillez créer un fichier .env avec GEMINI_API_KEY=votre_cle");
+    }
+    ai = new GoogleGenAI({ apiKey });
+  }
+  return ai;
+};
 
 const MODEL_FAST = 'gemini-2.5-flash';
 
@@ -17,7 +28,7 @@ export const extractCVData = async (rawText: string): Promise<CVData> => {
   ${rawText}
   `;
 
-  const response = await ai.models.generateContent({
+  const response = await getAI().models.generateContent({
     model: MODEL_FAST,
     contents: prompt,
     config: {
@@ -86,7 +97,7 @@ export const analyzeCV = async (cvData: CVData, jobDescription: string): Promise
   Offre d'emploi: ${jobDescription}
   `;
 
-  const response = await ai.models.generateContent({
+  const response = await getAI().models.generateContent({
     model: MODEL_FAST,
     contents: prompt,
     config: {
@@ -127,7 +138,7 @@ export const rewriteCV = async (cvData: CVData, jobDescription: string, suggesti
   Suggestions appliquées: ${JSON.stringify(suggestions)}
   `;
 
-  const response = await ai.models.generateContent({
+  const response = await getAI().models.generateContent({
     model: MODEL_FAST,
     contents: prompt,
     config: {
