@@ -1,0 +1,5 @@
+{
+  "name": "CV Optimize AI",
+  "description": "Une application intelligente pour analyser, noter et optimiser votre CV en fonction d'une offre d'emploi spécifique grâce à l'IA Gemini.",
+  "requestFramePermissions": []
+}
